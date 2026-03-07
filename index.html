@@ -25,6 +25,14 @@
             --safe-top: env(safe-area-inset-top, 44px);
             --safe-bottom: env(safe-area-inset-bottom, 34px);
             --pride: linear-gradient(90deg, #ff0018, #ffa52c, #ffff41, #008018, #0000f9, #86007d);
+            
+            /* Category Colors */
+            --cat-hotels: #3b82f6;
+            --cat-flights: #ef4444;
+            --cat-res: #a855f7;
+            --cat-act: #10b981;
+            --cat-dining: #f97316;
+            --cat-rem: #f59e0b;
         }
 
         * {
@@ -38,16 +46,14 @@
             color: var(--primary-text);
             margin: 0;
             padding: 0;
-            padding-top: calc(var(--safe-top) + 44px); /* Space for nav bar */
+            padding-top: calc(var(--safe-top) + 44px); 
             padding-bottom: var(--safe-bottom);
         }
 
         /* --- iOS Navigation Bar --- */
         .nav-bar {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             height: calc(var(--safe-top) + 44px);
             background: rgba(242, 242, 247, 0.85);
             backdrop-filter: blur(20px);
@@ -61,93 +67,61 @@
         }
 
         .nav-bar::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: var(--pride);
-            opacity: 0.8;
+            content: ''; position: absolute; bottom: -2px; left: 0; width: 100%; height: 2px;
+            background: var(--pride); opacity: 0.8;
         }
 
-        .nav-title {
-            font-size: 17px;
-            font-weight: 600;
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            bottom: 11px;
-        }
-
-        .nav-button {
-            color: var(--tint-color);
-            background: none;
-            border: none;
-            font-size: 17px;
-            font-weight: 400;
-            padding: 0;
-            cursor: pointer;
-        }
-
-        .nav-button.icon {
-            font-size: 22px;
-            font-weight: 300;
-        }
+        .nav-title { font-size: 17px; font-weight: 600; position: absolute; left: 50%; transform: translateX(-50%); bottom: 11px; }
+        .nav-button { color: var(--tint-color); background: none; border: none; font-size: 17px; font-weight: 400; padding: 0; cursor: pointer; }
+        .nav-button.icon { font-size: 22px; font-weight: 300; }
 
         /* --- Header & Filters --- */
-        .page-header {
-            padding: 16px 20px 8px;
-            font-size: 34px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
+        .page-header { padding: 16px 20px 8px; font-size: 34px; font-weight: 700; letter-spacing: -0.5px; }
 
         .filter-scroll {
-            display: flex;
-            overflow-x: auto;
-            padding: 0 20px 16px;
-            gap: 8px;
-            scrollbar-width: none; /* Firefox */
+            display: flex; overflow-x: auto; padding: 0 20px 16px; gap: 8px; scrollbar-width: none;
         }
-        .filter-scroll::-webkit-scrollbar { display: none; } /* Safari */
+        .filter-scroll::-webkit-scrollbar { display: none; }
 
         .filter-pill {
             background: var(--surface-color);
-            color: var(--primary-text);
-            border: 1px solid var(--separator);
+            border: 2px solid var(--separator);
             padding: 8px 16px;
             border-radius: 20px;
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 600;
             white-space: nowrap;
             transition: all 0.2s;
+            cursor: pointer;
         }
 
-        .filter-pill.active {
-            background: var(--tint-color);
-            color: #fff;
-            border-color: var(--tint-color);
-        }
+        /* Color-Coded Filter Buttons */
+        .filter-pill[data-cat="All"] { border-color: var(--primary-text); color: var(--primary-text); }
+        .filter-pill[data-cat="All"].active { background: var(--primary-text); color: white; }
+
+        .filter-pill[data-cat="Hotels"] { border-color: var(--cat-hotels); color: var(--cat-hotels); }
+        .filter-pill[data-cat="Hotels"].active { background: var(--cat-hotels); color: white; }
+
+        .filter-pill[data-cat="Flights"] { border-color: var(--cat-flights); color: var(--cat-flights); }
+        .filter-pill[data-cat="Flights"].active { background: var(--cat-flights); color: white; }
+
+        .filter-pill[data-cat="Reservations"] { border-color: var(--cat-res); color: var(--cat-res); }
+        .filter-pill[data-cat="Reservations"].active { background: var(--cat-res); color: white; }
+
+        .filter-pill[data-cat="Activities"] { border-color: var(--cat-act); color: var(--cat-act); }
+        .filter-pill[data-cat="Activities"].active { background: var(--cat-act); color: white; }
+
+        .filter-pill[data-cat="Dining"] { border-color: var(--cat-dining); color: var(--cat-dining); }
+        .filter-pill[data-cat="Dining"].active { background: var(--cat-dining); color: white; }
+
+        .filter-pill[data-cat="Reminders"] { border-color: var(--cat-rem); color: #c27500; } /* slightly darker text for contrast */
+        .filter-pill[data-cat="Reminders"].active { background: var(--cat-rem); color: white; }
 
         /* --- iOS Grouped List --- */
         .date-group { margin-bottom: 24px; }
-        
-        .date-header {
-            font-size: 18px;
-            font-weight: 600;
-            margin: 0 20px 8px;
-            text-transform: uppercase;
-            color: var(--secondary-text);
-            letter-spacing: -0.2px;
-        }
+        .date-header { font-size: 18px; font-weight: 600; margin: 0 20px 8px; text-transform: uppercase; color: var(--secondary-text); letter-spacing: -0.2px; }
 
-        .ios-list {
-            background: var(--surface-color);
-            border-radius: 12px;
-            margin: 0 16px;
-            overflow: hidden;
-        }
+        .ios-list { background: var(--surface-color); border-radius: 12px; margin: 0 16px; overflow: hidden; }
 
         .list-item {
             padding: 12px 16px;
@@ -157,159 +131,63 @@
             cursor: pointer;
             transition: background 0.1s;
         }
-
         .list-item:active { background: #E5E5EA; }
         .list-item:last-child { border-bottom: none; }
 
-        .item-icon {
-            font-size: 24px;
-            margin-right: 16px;
-            width: 32px;
-            text-align: center;
-        }
+        /* Color-Coded List Edges */
+        .list-item[data-cat="Hotels"] { border-left: 5px solid var(--cat-hotels); }
+        .list-item[data-cat="Flights"] { border-left: 5px solid var(--cat-flights); }
+        .list-item[data-cat="Reservations"] { border-left: 5px solid var(--cat-res); }
+        .list-item[data-cat="Activities"] { border-left: 5px solid var(--cat-act); }
+        .list-item[data-cat="Dining"] { border-left: 5px solid var(--cat-dining); }
+        .list-item[data-cat="Reminders"] { border-left: 5px solid var(--cat-rem); }
 
+        .item-icon { font-size: 24px; margin-right: 16px; width: 32px; text-align: center; }
         .item-content { flex: 1; min-width: 0; }
-        
-        .item-title {
-            font-size: 17px;
-            font-weight: 500;
-            margin-bottom: 2px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .item-subtitle {
-            font-size: 14px;
-            color: var(--secondary-text);
-        }
-
-        .item-chevron {
-            color: #C7C7CC;
-            font-weight: 600;
-            margin-left: 10px;
-        }
+        .item-title { font-size: 17px; font-weight: 500; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .item-subtitle { font-size: 14px; color: var(--secondary-text); }
+        .item-chevron { color: #C7C7CC; font-weight: 600; margin-left: 10px; }
 
         /* --- Modals / Bottom Sheets --- */
         .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.4);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            z-index: 999;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4); opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 999;
         }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
 
         .bottom-sheet {
-            position: fixed;
-            bottom: -100%;
-            left: 0; right: 0;
-            height: 92vh;
-            background: var(--surface-color);
-            border-radius: 16px 16px 0 0;
+            position: fixed; bottom: -100%; left: 0; right: 0; height: 92vh;
+            background: var(--surface-color); border-radius: 16px 16px 0 0;
             transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1);
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+            z-index: 1000; display: flex; flex-direction: column; overflow: hidden;
         }
         .bottom-sheet.active { bottom: 0; }
 
         .sheet-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px;
-            border-bottom: 1px solid var(--separator);
-            background: rgba(255,255,255,0.9);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            z-index: 10;
+            display: flex; justify-content: space-between; align-items: center; padding: 16px;
+            border-bottom: 1px solid var(--separator); background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 10;
         }
-
         .sheet-title { font-size: 17px; font-weight: 600; }
         .sheet-content { flex: 1; overflow-y: auto; padding-bottom: var(--safe-bottom); }
 
         /* --- Detail View Specifics --- */
-        .hero-image {
-            width: 100%;
-            height: 250px;
-            background-color: #E5E5EA;
-            background-size: cover;
-            background-position: center;
-        }
-
+        .hero-image { width: 100%; height: 250px; background-color: #E5E5EA; background-size: cover; background-position: center; }
         .detail-body { padding: 20px; }
-        
-        .detail-tag {
-            display: inline-block;
-            padding: 4px 10px;
-            background: #E5E5EA;
-            color: #3A3A3C;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            margin-bottom: 12px;
-        }
+        .detail-tag { display: inline-block; padding: 4px 10px; background: #E5E5EA; color: #3A3A3C; border-radius: 6px; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 12px; }
+        .detail-title { font-size: 28px; font-weight: 700; margin-bottom: 8px; line-height: 1.2; }
+        .detail-time { font-size: 16px; color: var(--secondary-text); margin-bottom: 24px; display: flex; align-items: center; gap: 6px; }
+        .detail-section-title { font-size: 15px; font-weight: 600; color: var(--secondary-text); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .detail-desc { font-size: 17px; line-height: 1.5; margin-bottom: 30px; white-space: pre-line; color: #1C1C1E; }
 
-        .detail-title { font-size: 28px; font-weight: 700; margin-bottom: 8px; line-height: 1.2;}
-        .detail-time { font-size: 16px; color: var(--secondary-text); margin-bottom: 24px; display: flex; align-items: center; gap: 6px;}
-        
-        .detail-section-title { font-size: 15px; font-weight: 600; color: var(--secondary-text); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;}
-        .detail-desc { font-size: 17px; line-height: 1.5; margin-bottom: 30px; white-space: pre-line; color: #1C1C1E;}
-
-        .ios-main-button {
-            display: block;
-            width: 100%;
-            padding: 16px;
-            background: var(--tint-color);
-            color: #fff;
-            text-align: center;
-            border-radius: 14px;
-            font-size: 17px;
-            font-weight: 600;
-            text-decoration: none;
-            margin-bottom: 16px;
-        }
-
-        .ios-secondary-button {
-            display: block;
-            width: 100%;
-            padding: 16px;
-            background: #E5E5EA;
-            color: var(--primary-text);
-            text-align: center;
-            border-radius: 14px;
-            font-size: 17px;
-            font-weight: 600;
-            border: none;
-            margin-bottom: 16px;
-            cursor: pointer;
-        }
-
-        .ios-delete-button {
-            display: block;
-            width: 100%;
-            padding: 16px;
-            background: #FFEBEB;
-            color: var(--red-color);
-            text-align: center;
-            border-radius: 14px;
-            font-size: 17px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-        }
+        .ios-main-button { display: block; width: 100%; padding: 16px; background: var(--tint-color); color: #fff; text-align: center; border-radius: 14px; font-size: 17px; font-weight: 600; text-decoration: none; margin-bottom: 16px; }
+        .ios-secondary-button { display: block; width: 100%; padding: 16px; background: #E5E5EA; color: var(--primary-text); text-align: center; border-radius: 14px; font-size: 17px; font-weight: 600; border: none; margin-bottom: 16px; cursor: pointer; }
+        .ios-delete-button { display: block; width: 100%; padding: 16px; background: #FFEBEB; color: var(--red-color); text-align: center; border-radius: 14px; font-size: 17px; font-weight: 600; border: none; cursor: pointer; }
 
         /* Forms in Modal */
         .form-group { margin-bottom: 16px; padding: 0 16px; }
-        .form-group label { display: block; font-size: 13px; color: var(--secondary-text); margin-bottom: 6px; text-transform: uppercase;}
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%; padding: 12px; border: 1px solid var(--separator); border-radius: 10px; font-size: 17px; font-family: inherit; background: var(--bg-color);
-        }
+        .form-group label { display: block; font-size: 13px; color: var(--secondary-text); margin-bottom: 6px; text-transform: uppercase; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 1px solid var(--separator); border-radius: 10px; font-size: 17px; font-family: inherit; background: var(--bg-color); }
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--tint-color); }
         
     </style>
@@ -325,13 +203,13 @@
     <div class="page-header">Itinerary</div>
     
     <div class="filter-scroll" id="filterContainer">
-        <div class="filter-pill active" onclick="setCategoryFilter('All', this)">🌟 All</div>
-        <div class="filter-pill" onclick="setCategoryFilter('Hotels', this)">🏨 Hotels</div>
-        <div class="filter-pill" onclick="setCategoryFilter('Flights', this)">✈️ Flights</div>
-        <div class="filter-pill" onclick="setCategoryFilter('Reservations', this)">🎟️ Booked</div>
-        <div class="filter-pill" onclick="setCategoryFilter('Activities', this)">📸 Activities</div>
-        <div class="filter-pill" onclick="setCategoryFilter('Dining', this)">🍽️ Dining</div>
-        <div class="filter-pill" onclick="setCategoryFilter('Reminders', this)">⏰ Reminders</div>
+        <div class="filter-pill active" data-cat="All" onclick="setCategoryFilter('All', this)">🌟 All</div>
+        <div class="filter-pill" data-cat="Hotels" onclick="setCategoryFilter('Hotels', this)">🏨 Hotels</div>
+        <div class="filter-pill" data-cat="Flights" onclick="setCategoryFilter('Flights', this)">✈️ Flights</div>
+        <div class="filter-pill" data-cat="Reservations" onclick="setCategoryFilter('Reservations', this)">🎟️ Booked</div>
+        <div class="filter-pill" data-cat="Activities" onclick="setCategoryFilter('Activities', this)">📸 Activities</div>
+        <div class="filter-pill" data-cat="Dining" onclick="setCategoryFilter('Dining', this)">🍽️ Dining</div>
+        <div class="filter-pill" data-cat="Reminders" onclick="setCategoryFilter('Reminders', this)">⏰ Reminders</div>
     </div>
 
     <div id="itineraryList"></div>
@@ -422,6 +300,11 @@
                 <div class="form-group">
                     <label>Map Route URL (Optional)</label>
                     <input type="url" id="eventRoute" placeholder="https://maps.apple.com/...">
+                </div>
+
+                <div class="form-group">
+                    <label>Custom Image URL (Optional)</label>
+                    <input type="url" id="eventImage" placeholder="https://example.com/image.jpg">
                 </div>
                 
                 <div class="form-group">
@@ -1154,8 +1037,14 @@
         let activeCategoryFilter = 'All';
         let currentDetailEventId = null;
 
-        // Image assignment based on contextual keywords to feel like a real app
+        // Image assignment logic (Prioritizes user's custom URL)
         function getContextualImage(event) {
+            // 1. If user provided a custom image URL, use it immediately
+            if (event.imageUrl && event.imageUrl.trim() !== "") {
+                return event.imageUrl;
+            }
+
+            // 2. Otherwise, fall back to smart context defaults
             const t = event.title.toLowerCase();
             const d = (event.desc || "").toLowerCase();
             
@@ -1167,13 +1056,11 @@
             if (t.includes('universal') || t.includes('epic universe') || t.includes('island')) return 'https://images.unsplash.com/photo-1604028297053-066ab64a13e5?q=80&w=800&auto=format&fit=crop';
             if (t.includes('mexico')) return 'https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?q=80&w=800&auto=format&fit=crop';
             
-            // Fallbacks based on category
             if (event.category === 'Flights') return 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=800&auto=format&fit=crop';
             if (event.category === 'Hotels') return 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800&auto=format&fit=crop';
             if (event.category === 'Dining') return 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=800&auto=format&fit=crop';
             if (event.category === 'Activities') return 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=800&auto=format&fit=crop';
             
-            // Default gradient fallback
             return 'https://images.unsplash.com/photo-1499083097717-a156f85f0516?q=80&w=800&auto=format&fit=crop';
         }
 
@@ -1184,7 +1071,7 @@
 
         function formatDateDisplay(dateStr) {
             const options = { weekday: 'short', month: 'short', day: 'numeric' };
-            const d = new Date(dateStr + 'T12:00:00'); // Force local midday
+            const d = new Date(dateStr + 'T12:00:00'); 
             return d.toLocaleDateString('en-US', options);
         }
 
@@ -1199,13 +1086,9 @@
             const list = document.getElementById('itineraryList');
             list.innerHTML = '';
 
-            // 1. Filter
             const filtered = itinerary.filter(event => activeCategoryFilter === 'All' || event.category === activeCategoryFilter);
-            
-            // 2. Sort by date
             filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
 
-            // 3. Group by date
             const grouped = {};
             filtered.forEach(event => {
                 if(!grouped[event.date]) grouped[event.date] = [];
@@ -1217,7 +1100,6 @@
                 return;
             }
 
-            // 4. Render Groups
             for (const [date, events] of Object.entries(grouped)) {
                 const groupDiv = document.createElement('div');
                 groupDiv.className = 'date-group';
@@ -1233,11 +1115,11 @@
                     if (event.category === 'Hotels' && event.endDate) timeSub = `Checkout: ${event.endDate}`;
                     if (event.category === 'Flights' && event.endTime) timeSub = `${event.time} ➔ ${event.endTime}`;
                     
-                    // Remove emoji from title for clean look (if exists)
                     const cleanTitle = event.title.replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '').trim();
 
                     const item = document.createElement('div');
                     item.className = 'list-item';
+                    item.setAttribute('data-cat', event.category); // Attaches color edge
                     item.onclick = () => openDetailModal(event.id);
                     item.innerHTML = `
                         <div class="item-icon">${categoryIcons[event.category]}</div>
@@ -1259,14 +1141,14 @@
         function closeAllModals() {
             document.querySelectorAll('.bottom-sheet').forEach(sheet => sheet.classList.remove('active'));
             document.getElementById('modalOverlay').classList.remove('active');
-            document.body.style.overflow = 'auto'; // Re-enable scrolling
+            document.body.style.overflow = 'auto'; 
         }
 
         function openModal(modalId) {
             closeAllModals();
             document.getElementById('modalOverlay').classList.add('active');
             document.getElementById(modalId).classList.add('active');
-            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            document.body.style.overflow = 'hidden'; 
         }
 
         function openAddModal() {
@@ -1277,18 +1159,14 @@
             openModal('addEditModal');
         }
 
-        function openSettingsModal() {
-            openModal('settingsModal');
-        }
+        function openSettingsModal() { openModal('settingsModal'); }
 
         function openDetailModal(id) {
             const event = itinerary.find(e => e.id === id);
             currentDetailEventId = id;
 
-            // Clean title
             const cleanTitle = event.title.replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '').trim();
             
-            // Populate Modal
             document.getElementById('detailImage').style.backgroundImage = `url('${getContextualImage(event)}')`;
             document.getElementById('detailCategory').innerText = `${categoryIcons[event.category]} ${event.category}`;
             document.getElementById('detailTitle').innerText = cleanTitle;
@@ -1348,7 +1226,8 @@
                 tz: document.getElementById('eventTZ').value,
                 title: document.getElementById('eventTitle').value,
                 desc: document.getElementById('eventDesc').value,
-                route: document.getElementById('eventRoute').value || undefined
+                route: document.getElementById('eventRoute').value || undefined,
+                imageUrl: document.getElementById('eventImage').value || undefined
             };
 
             if (!event.date || !event.title) {
@@ -1380,6 +1259,7 @@
             
             if(event.tz) document.getElementById('eventTZ').value = event.tz;
             document.getElementById('eventRoute').value = event.route || '';
+            document.getElementById('eventImage').value = event.imageUrl || '';
             document.getElementById('eventTitle').value = event.title;
             document.getElementById('eventDesc').value = event.desc;
             
