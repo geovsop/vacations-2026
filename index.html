@@ -114,7 +114,7 @@
         .filter-pill[data-cat="Dining"] { border-color: var(--cat-dining); color: var(--cat-dining); }
         .filter-pill[data-cat="Dining"].active { background: var(--cat-dining); color: white; }
 
-        .filter-pill[data-cat="Reminders"] { border-color: var(--cat-rem); color: #c27500; } /* slightly darker text for contrast */
+        .filter-pill[data-cat="Reminders"] { border-color: var(--cat-rem); color: #c27500; } 
         .filter-pill[data-cat="Reminders"].active { background: var(--cat-rem); color: white; }
 
         /* --- iOS Grouped List --- */
@@ -303,8 +303,14 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Custom Image URL (Optional)</label>
-                    <input type="url" id="eventImage" placeholder="https://example.com/image.jpg">
+                    <label>Custom Photo (Stored Offline)</label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <label for="eventImageFile" class="ios-secondary-button" style="margin-bottom: 0; padding: 10px; font-size: 15px; flex: 1;">📷 Upload Photo</label>
+                        <button type="button" class="ios-delete-button" id="removePhotoBtn" style="display: none; margin-bottom: 0; padding: 10px; font-size: 15px; flex: 1;" onclick="removePhoto()">Remove</button>
+                    </div>
+                    <input type="file" id="eventImageFile" accept="image/*" style="display: none;">
+                    <input type="hidden" id="eventImageBase64">
+                    <div id="imagePreview" style="margin-top: 10px; width: 100%; height: 150px; background-size: cover; background-position: center; border-radius: 10px; display: none;"></div>
                 </div>
                 
                 <div class="form-group">
@@ -1037,14 +1043,57 @@
         let activeCategoryFilter = 'All';
         let currentDetailEventId = null;
 
-        // Image assignment logic (Prioritizes user's custom URL)
+        // Photo Upload and Compression Logic
+        document.getElementById('eventImageFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    // Compress image using HTML5 Canvas
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 800; // Limits the file size so the app doesn't crash
+                    let scaleSize = MAX_WIDTH / img.width;
+                    if (scaleSize > 1) scaleSize = 1; // Don't upscale small images
+                    
+                    canvas.width = img.width * scaleSize;
+                    canvas.height = img.height * scaleSize;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                    // Convert to Base64 Text
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.6); // 60% quality JPEG
+                    document.getElementById('eventImageBase64').value = dataUrl;
+                    
+                    // Show Preview
+                    const preview = document.getElementById('imagePreview');
+                    preview.style.backgroundImage = `url(${dataUrl})`;
+                    preview.style.display = 'block';
+                    document.getElementById('removePhotoBtn').style.display = 'block';
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(file);
+        });
+
+        function removePhoto() {
+            document.getElementById('eventImageFile').value = '';
+            document.getElementById('eventImageBase64').value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('imagePreview').style.backgroundImage = 'none';
+            document.getElementById('removePhotoBtn').style.display = 'none';
+        }
+
+        // Image assignment logic (Prioritizes your locally embedded photo)
         function getContextualImage(event) {
-            // 1. If user provided a custom image URL, use it immediately
-            if (event.imageUrl && event.imageUrl.trim() !== "") {
-                return event.imageUrl;
+            if (event.customImageBase64 && event.customImageBase64.trim() !== "") {
+                return event.customImageBase64;
             }
 
-            // 2. Otherwise, fall back to smart context defaults
+            // Fall back to smart context defaults if no custom photo is uploaded
             const t = event.title.toLowerCase();
             const d = (event.desc || "").toLowerCase();
             
@@ -1119,7 +1168,7 @@
 
                     const item = document.createElement('div');
                     item.className = 'list-item';
-                    item.setAttribute('data-cat', event.category); // Attaches color edge
+                    item.setAttribute('data-cat', event.category); 
                     item.onclick = () => openDetailModal(event.id);
                     item.innerHTML = `
                         <div class="item-icon">${categoryIcons[event.category]}</div>
@@ -1155,6 +1204,7 @@
             document.getElementById('eventForm').reset();
             document.getElementById('editId').value = '';
             document.getElementById('formTitle').innerText = 'New Event';
+            removePhoto(); // Clear photo preview when creating new
             toggleTimeFields();
             openModal('addEditModal');
         }
@@ -1227,7 +1277,7 @@
                 title: document.getElementById('eventTitle').value,
                 desc: document.getElementById('eventDesc').value,
                 route: document.getElementById('eventRoute').value || undefined,
-                imageUrl: document.getElementById('eventImage').value || undefined
+                customImageBase64: document.getElementById('eventImageBase64').value || undefined
             };
 
             if (!event.date || !event.title) {
@@ -1259,9 +1309,19 @@
             
             if(event.tz) document.getElementById('eventTZ').value = event.tz;
             document.getElementById('eventRoute').value = event.route || '';
-            document.getElementById('eventImage').value = event.imageUrl || '';
             document.getElementById('eventTitle').value = event.title;
             document.getElementById('eventDesc').value = event.desc;
+            
+            // Load custom photo if it exists
+            if (event.customImageBase64) {
+                document.getElementById('eventImageBase64').value = event.customImageBase64;
+                const preview = document.getElementById('imagePreview');
+                preview.style.backgroundImage = `url(${event.customImageBase64})`;
+                preview.style.display = 'block';
+                document.getElementById('removePhotoBtn').style.display = 'block';
+            } else {
+                removePhoto();
+            }
             
             document.getElementById('formTitle').innerText = 'Edit Event';
             openModal('addEditModal');
