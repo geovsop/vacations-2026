@@ -50,6 +50,23 @@
             padding-bottom: var(--safe-bottom);
         }
 
+        /* --- Splash Screen --- */
+        #splashScreen {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--bg-color);
+            z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.6s cubic-bezier(0.25, 0.1, 0.25, 1), visibility 0.6s;
+        }
+        #splashScreen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .splash-icon { font-size: 72px; margin-bottom: 16px; animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .splash-title { font-size: 32px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px; animation: slideUp 0.6s ease-out 0.1s both; }
+        .splash-subtitle { font-size: 13px; font-weight: 600; color: var(--secondary-text); text-transform: uppercase; letter-spacing: 1px; text-align: center; padding: 0 40px; line-height: 1.6; animation: slideUp 0.6s ease-out 0.2s both; }
+        .splash-pride { position: absolute; bottom: 50px; width: 120px; height: 4px; background: var(--pride); border-radius: 2px; animation: slideUp 0.6s ease-out 0.3s both; }
+
+        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes slideUp { 0% { transform: translateY(20px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+
         /* --- iOS Navigation Bar --- */
         .nav-bar {
             position: fixed;
@@ -192,7 +209,14 @@
         
     </style>
 </head>
-<body>
+<body style="overflow: hidden;">
+
+    <div id="splashScreen">
+        <div class="splash-icon">✈️</div>
+        <div class="splash-title">Vacations 2026</div>
+        <div class="splash-subtitle">Orlando • Mexico • Brazil • Japan • Istanbul</div>
+        <div class="splash-pride"></div>
+    </div>
 
     <div class="nav-bar">
         <button class="nav-button icon" onclick="openSettingsModal()">⚙️</button>
@@ -714,7 +738,7 @@
             "time": "",
             "tz": "-06:00",
             "title": "🌊 Day 03: Tokyo DisneySea",
-            "desc": "✨ VACATION PACKAGE PERKS ACTIVE ✨\n• Unlimited Attraction Tickets\n• Reserved Show Viewing\n• Free Drinks Ticket\n• Fantasy Springs Magic Passport (Full access to the new area!)"
+            "desc": "✨ VACATION PACKAGE PERKS ACTIVE ACTIVE ✨\n• Unlimited Attraction Tickets\n• Reserved Show Viewing\n• Free Drinks Ticket\n• Fantasy Springs Magic Passport (Full access to the new area!)"
           },
           {
             "id": 35,
@@ -1075,6 +1099,18 @@
         let activeCategoryFilter = 'All';
         let currentDetailEventId = null;
 
+        // Splash Screen Logic
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const splash = document.getElementById('splashScreen');
+                if(splash) {
+                    splash.classList.add('hidden');
+                    // Ensure body scrolling is restored just in case
+                    document.body.style.overflow = 'auto'; 
+                }
+            }, 2200); // 2.2 second delay before fading out
+        });
+
         // Photo Upload and Compression Logic
         document.getElementById('eventImageFile').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -1218,7 +1254,12 @@
         function closeAllModals() {
             document.querySelectorAll('.bottom-sheet').forEach(sheet => sheet.classList.remove('active'));
             document.getElementById('modalOverlay').classList.remove('active');
-            document.body.style.overflow = 'auto'; 
+            
+            // Re-enable scrolling only if the splash screen is not visible
+            const splash = document.getElementById('splashScreen');
+            if (splash && splash.classList.contains('hidden')) {
+                document.body.style.overflow = 'auto'; 
+            }
         }
 
         function openModal(modalId) {
