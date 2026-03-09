@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Vacations 2026</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#F2F2F7">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Trip 2026">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
+    <style>
+        :root {
+            /* iOS System Colors */
+            --bg-color: #F2F2F7;
+            --surface-color: #FFFFFF;
+            --primary-text: #000000;
+            --secondary-text: #8A8A8E;
+            --tint-color: #007AFF;
+            --red-color: #FF3B30;
+            --separator: rgba(60, 60, 67, 0.15);
+            --safe-top: env(safe-area-inset-top, 44px);
+            --safe-bottom: env(safe-area-inset-bottom, 34px);
+            --pride: linear-gradient(90deg, #ff0018, #ffa52c, #ffff41, #008018, #0000f9, #86007d);
+            
+            /* Category Colors */
+            --cat-hotels: #3b82f6;
+            --cat-flights: #ef4444;
+            --cat-res: #a855f7;
+            --cat-act: #10b981;
+            --cat-dining: #f97316;
+            --cat-rem: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-text);
+            margin: 0;
+            padding: 0;
+            padding-top: calc(var(--safe-top) + 44px); 
+            padding-bottom: var(--safe-bottom);
+        }
+
+        /* --- iOS Navigation Bar --- */
+        .nav-bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: calc(var(--safe-top) + 44px);
+            background: rgba(242, 242, 247, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--separator);
+            z-index: 100;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            padding: 0 16px 10px 16px;
+        }
+
+        .nav-bar::after {
+            content: ''; position: absolute; bottom: -2px; left: 0; width: 100%; height: 2px;
+            background: var(--pride); opacity: 0.8;
+        }
+
+        .nav-title { font-size: 17px; font-weight: 600; position: absolute; left: 50%; transform: translateX(-50%); bottom: 11px; }
+        .nav-button { color: var(--tint-color); background: none; border: none; font-size: 17px; font-weight: 400; padding: 0; cursor: pointer; }
+        .nav-button.icon { font-size: 22px; font-weight: 300; }
+
+        /* --- Header & Filters --- */
+        .page-header { padding: 16px 20px 8px; font-size: 34px; font-weight: 700; letter-spacing: -0.5px; }
+
+        .filter-scroll {
+            display: flex; overflow-x: auto; padding: 0 20px 16px; gap: 8px; scrollbar-width: none;
+        }
+        .filter-scroll::-webkit-scrollbar { display: none; }
+
+        .filter-pill {
+            background: var(--surface-color);
+            border: 2px solid var(--separator);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        /* Color-Coded Filter Buttons */
+        .filter-pill[data-cat="All"] { border-color: var(--primary-text); color: var(--primary-text); }
+        .filter-pill[data-cat="All"].active { background: var(--primary-text); color: white; }
+
+        .filter-pill[data-cat="Hotels"] { border-color: var(--cat-hotels); color: var(--cat-hotels); }
+        .filter-pill[data-cat="Hotels"].active { background: var(--cat-hotels); color: white; }
+
+        .filter-pill[data-cat="Flights"] { border-color: var(--cat-flights); color: var(--cat-flights); }
+        .filter-pill[data-cat="Flights"].active { background: var(--cat-flights); color: white; }
+
+        .filter-pill[data-cat="Reservations"] { border-color: var(--cat-res); color: var(--cat-res); }
+        .filter-pill[data-cat="Reservations"].active { background: var(--cat-res); color: white; }
+
+        .filter-pill[data-cat="Activities"] { border-color: var(--cat-act); color: var(--cat-act); }
+        .filter-pill[data-cat="Activities"].active { background: var(--cat-act); color: white; }
+
+        .filter-pill[data-cat="Dining"] { border-color: var(--cat-dining); color: var(--cat-dining); }
+        .filter-pill[data-cat="Dining"].active { background: var(--cat-dining); color: white; }
+
+        .filter-pill[data-cat="Reminders"] { border-color: var(--cat-rem); color: #c27500; } 
+        .filter-pill[data-cat="Reminders"].active { background: var(--cat-rem); color: white; }
+
+        /* --- iOS Grouped List --- */
+        .date-group { margin-bottom: 24px; }
+        .date-header { font-size: 18px; font-weight: 600; margin: 0 20px 8px; text-transform: uppercase; color: var(--secondary-text); letter-spacing: -0.2px; }
+
+        .ios-list { background: var(--surface-color); border-radius: 12px; margin: 0 16px; overflow: hidden; }
+
+        .list-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--separator);
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+        .list-item:active { background: #E5E5EA; }
+        .list-item:last-child { border-bottom: none; }
+
+        /* Color-Coded List Edges */
+        .list-item[data-cat="Hotels"] { border-left: 5px solid var(--cat-hotels); }
+        .list-item[data-cat="Flights"] { border-left: 5px solid var(--cat-flights); }
+        .list-item[data-cat="Reservations"] { border-left: 5px solid var(--cat-res); }
+        .list-item[data-cat="Activities"] { border-left: 5px solid var(--cat-act); }
+        .list-item[data-cat="Dining"] { border-left: 5px solid var(--cat-dining); }
+        .list-item[data-cat="Reminders"] { border-left: 5px solid var(--cat-rem); }
+
+        .item-icon { font-size: 24px; margin-right: 16px; width: 32px; text-align: center; }
+        .item-content { flex: 1; min-width: 0; }
+        .item-title { font-size: 17px; font-weight: 500; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .item-subtitle { font-size: 14px; color: var(--secondary-text); }
+        .item-chevron { color: #C7C7CC; font-weight: 600; margin-left: 10px; }
+
+        /* --- Modals / Bottom Sheets --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4); opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 999;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+        .bottom-sheet {
+            position: fixed; bottom: -100%; left: 0; right: 0; height: 92vh;
+            background: var(--surface-color); border-radius: 16px 16px 0 0;
+            transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1);
+            z-index: 1000; display: flex; flex-direction: column; overflow: hidden;
+        }
+        .bottom-sheet.active { bottom: 0; }
+
+        .sheet-header {
+            display: flex; justify-content: space-between; align-items: center; padding: 16px;
+            border-bottom: 1px solid var(--separator); background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 10;
+        }
+        .sheet-title { font-size: 17px; font-weight: 600; }
+        .sheet-content { flex: 1; overflow-y: auto; padding-bottom: var(--safe-bottom); }
+
+        /* --- Detail View Specifics --- */
+        .hero-image { width: 100%; height: 250px; background-color: #E5E5EA; background-size: cover; background-position: center; }
+        .detail-body { padding: 20px; }
+        .detail-tag { display: inline-block; padding: 4px 10px; background: #E5E5EA; color: #3A3A3C; border-radius: 6px; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 12px; }
+        .detail-title { font-size: 28px; font-weight: 700; margin-bottom: 8px; line-height: 1.2; }
+        .detail-time { font-size: 16px; color: var(--secondary-text); margin-bottom: 24px; display: flex; align-items: center; gap: 6px; }
+        .detail-section-title { font-size: 15px; font-weight: 600; color: var(--secondary-text); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .detail-desc { font-size: 17px; line-height: 1.5; margin-bottom: 30px; white-space: pre-line; color: #1C1C1E; }
+
+        .ios-main-button { display: block; width: 100%; padding: 16px; background: var(--tint-color); color: #fff; text-align: center; border-radius: 14px; font-size: 17px; font-weight: 600; text-decoration: none; margin-bottom: 16px; }
+        .ios-secondary-button { display: block; width: 100%; padding: 16px; background: #E5E5EA; color: var(--primary-text); text-align: center; border-radius: 14px; font-size: 17px; font-weight: 600; border: none; margin-bottom: 16px; cursor: pointer; }
+        .ios-delete-button { display: block; width: 100%; padding: 16px; background: #FFEBEB; color: var(--red-color); text-align: center; border-radius: 14px; font-size: 17px; font-weight: 600; border: none; cursor: pointer; }
+
+        /* Forms in Modal */
+        .form-group { margin-bottom: 16px; padding: 0 16px; }
+        .form-group label { display: block; font-size: 13px; color: var(--secondary-text); margin-bottom: 6px; text-transform: uppercase; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 1px solid var(--separator); border-radius: 10px; font-size: 17px; font-family: inherit; background: var(--bg-color); }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--tint-color); }
+        
+    </style>
+</head>
+<body>
+
+    <div class="nav-bar">
+        <button class="nav-button icon" onclick="openSettingsModal()">⚙️</button>
+        <div class="nav-title">Vacations 2026</div>
+        <button class="nav-button icon" onclick="openAddModal()">＋</button>
+    </div>
+
+    <div class="page-header">Itinerary</div>
+    
+    <div class="filter-scroll" id="filterContainer">
+        <div class="filter-pill active" data-cat="All" onclick="setCategoryFilter('All', this)">🌟 All</div>
+        <div class="filter-pill" data-cat="Hotels" onclick="setCategoryFilter('Hotels', this)">🏨 Hotels</div>
+        <div class="filter-pill" data-cat="Flights" onclick="setCategoryFilter('Flights', this)">✈️ Flights</div>
+        <div class="filter-pill" data-cat="Reservations" onclick="setCategoryFilter('Reservations', this)">🎟️ Booked</div>
+        <div class="filter-pill" data-cat="Activities" onclick="setCategoryFilter('Activities', this)">📸 Activities</div>
+        <div class="filter-pill" data-cat="Dining" onclick="setCategoryFilter('Dining', this)">🍽️ Dining</div>
+        <div class="filter-pill" data-cat="Reminders" onclick="setCategoryFilter('Reminders', this)">⏰ Reminders</div>
+    </div>
+
+    <div id="itineraryList"></div>
+
+    <div class="modal-overlay" id="modalOverlay" onclick="closeAllModals()"></div>
+
+    <div class="bottom-sheet" id="detailModal">
+        <div class="sheet-header">
+            <button class="nav-button" onclick="closeAllModals()">Close</button>
+            <button class="nav-button" id="detailEditBtn">Edit</button>
+        </div>
+        <div class="sheet-content">
+            <div class="hero-image" id="detailImage"></div>
+            <div class="detail-body">
+                <div class="detail-tag" id="detailCategory">Category</div>
+                <div class="detail-title" id="detailTitle">Event Title</div>
+                <div class="detail-time" id="detailTime">🕒 Time Placeholder</div>
+                
+                <div class="detail-section-title" id="descTitle">Notes & Details</div>
+                <div class="detail-desc" id="detailDesc">Description goes here</div>
+
+                <a href="#" target="_blank" class="ios-main-button" id="detailRouteBtn" style="display: none;">📍 Open in Apple Maps</a>
+                <button class="ios-delete-button" id="detailDeleteBtn">Delete Event</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-sheet" id="addEditModal">
+        <div class="sheet-header">
+            <button class="nav-button" onclick="closeAllModals()">Cancel</button>
+            <div class="sheet-title" id="formTitle">New Event</div>
+            <button class="nav-button" style="font-weight: 600;" onclick="submitForm()">Save</button>
+        </div>
+        <div class="sheet-content" style="padding-top: 20px;">
+            <form id="eventForm">
+                <input type="hidden" id="editId" value="">
+                
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="eventCategory" onchange="toggleTimeFields()">
+                        <option value="Hotels">Hotel / Lodging</option>
+                        <option value="Flights">Flight / Transit</option>
+                        <option value="Reservations">Booked Reservation</option>
+                        <option value="Activities">Highlight / Activity</option>
+                        <option value="Dining">Dining Experience</option>
+                        <option value="Reminders">Booking Reminder</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="eventDate" required>
+                </div>
+
+                <div id="timeGroup" class="form-group" style="display: none;">
+                    <label id="timeLabel">Local Time</label>
+                    <input type="time" id="eventTime">
+                </div>
+                
+                <div id="endTimeGroup" class="form-group" style="display: none;">
+                    <label>Arrival Time</label>
+                    <input type="time" id="eventEndTime">
+                </div>
+
+                <div id="endDateGroup" class="form-group" style="display: none;">
+                    <label>Check-out Date</label>
+                    <input type="date" id="eventEndDate">
+                </div>
+
+                <div id="tzGroup" class="form-group" style="display: none;">
+                    <label>Timezone</label>
+                    <select id="eventTZ">
+                        <option value="-04:00">Miami / Orlando (EDT)</option>
+                        <option value="-06:00" selected>Mexico (CST)</option>
+                        <option value="-07:00">Phoenix/LA (MST/PDT)</option>
+                        <option value="-03:00">Brazil (BRT)</option>
+                        <option value="+09:00">Tokyo (JST)</option>
+                        <option value="+08:00">Singapore (SGT)</option>
+                        <option value="+03:00">Istanbul (TRT)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="eventTitle" required placeholder="Event Name">
+                </div>
+                
+                <div class="form-group">
+                    <label>Map Route URL (Optional)</label>
+                    <input type="url" id="eventRoute" placeholder="https://maps.apple.com/...">
+                </div>
+
+                <div class="form-group">
+                    <label>Custom Photo (Stored Offline)</label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <label for="eventImageFile" class="ios-secondary-button" style="margin-bottom: 0; padding: 10px; font-size: 15px; flex: 1;">📷 Upload Photo</label>
+                        <button type="button" class="ios-delete-button" id="removePhotoBtn" style="display: none; margin-bottom: 0; padding: 10px; font-size: 15px; flex: 1;" onclick="removePhoto()">Remove</button>
+                    </div>
+                    <input type="file" id="eventImageFile" accept="image/*" style="display: none;">
+                    <input type="hidden" id="eventImageBase64">
+                    <div id="imagePreview" style="margin-top: 10px; width: 100%; height: 150px; background-size: cover; background-position: center; border-radius: 10px; display: none;"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Details & Logistics</label>
+                    <textarea id="eventDesc" rows="5" placeholder="Confirmation numbers, train lines, etc."></textarea>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="bottom-sheet" id="settingsModal">
+        <div class="sheet-header">
+            <div style="width: 50px;"></div>
+            <div class="sheet-title">Tools & Export</div>
+            <button class="nav-button" style="font-weight: 600;" onclick="closeAllModals()">Done</button>
+        </div>
+        <div class="sheet-content" style="padding: 20px;">
+            <div class="detail-desc" style="font-size: 15px; text-align: center; margin-bottom: 20px;">Sync your itinerary data to Apple Calendar or download an offline backup.</div>
+            
+            <button class="ios-main-button" onclick="downloadAllICS()">Sync All to Calendar (.ics)</button>
+            <button class="ios-secondary-button" onclick="downloadAppHTML()">Save Offline HTML Backup</button>
+            
+            <div class="detail-section-title" style="margin-top: 30px;">Sync Specific Categories</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button class="ios-secondary-button" style="margin-bottom:0;" onclick="downloadICS('Hotels')">Hotels</button>
+                <button class="ios-secondary-button" style="margin-bottom:0;" onclick="downloadICS('Flights')">Flights</button>
+                <button class="ios-secondary-button" style="margin-bottom:0;" onclick="downloadICS('Activities')">Activities</button>
+                <button class="ios-secondary-button" style="margin-bottom:0;" onclick="downloadICS('Dining')">Dining</button>
+            </div>
+
+            <div class="detail-section-title" style="margin-top: 30px;">Troubleshooting</div>
+            <button class="ios-delete-button" onclick="clearLocalData()">Force Sync from Cloud</button>
+        </div>
+    </div>
+
+    <script id="appData">
+        let itinerary = [
+          {
+            "id": 1009,
+            "date": "2026-03-06",
+            "time": "10:00",
+            "tz": "-06:00",
+            "category": "Reminders",
+            "title": "🎫 RESERVE: Squid Game Experience",
+            "desc": "Tickets cost ¥4,100 for weekends. Keep checking e-plus for your May 30th slot as they are still not open yet!"
+          },
+          {
+            "id": 4,
+            "date": "2026-04-25",
+            "time": "18:00",
+            "tz": "+09:00",
+            "category": "Reminders",
+            "title": "⏰ BOOK: Pokémon Cafe (Tokyo)",
+            "desc": "Reservations open 31 days in advance at 6 PM JST. Have multiple tabs ready!"
+          },
+          {
+            "id": 8,
+            "date": "2026-05-03",
+            "time": "07:00",
+            "tz": "-04:00",
+            "category": "Reminders",
+            "title": "⚡ BOOK: Disney Lightning Lanes",
+            "desc": "Opens 7 days before check-in at 7AM EST."
+          },
+          {
+            "id": 1004,
+            "date": "2026-05-04",
+            "time": "10:00",
+            "tz": "+09:00",
+            "category": "Reminders",
+            "title": "🚆 BOOK: Shinkansen to Kyoto",
+            "desc": "Smart-EX tickets open exactly 1 month in advance at 10:00 AM JST."
+          },
+          {
+            "id": 1005,
+            "date": "2026-05-07",
+            "time": "10:00",
+            "tz": "-06:00",
+            "category": "Reminders",
+            "title": "⏰ BOOK: Loutre Otter Cafe",
+            "desc": "Book about 1 month in advance to secure a slot with the otters."
+          },
+          {
+            "id": 1007,
+            "date": "2026-05-09",
+            "time": "18:00",
+            "tz": "+09:00",
+            "category": "Reminders",
+            "title": "⏰ BOOK: Pokémon Cafe (Osaka)",
+            "desc": "Reservations open 31 days in advance at 6:00 PM JST. Have multiple tabs open!"
+          },
+          {
+            "id": 9,
+            "date": "2026-05-10",
+            "time": "07:00",
+            "endTime": "",
+            "tz": "-04:00",
+            "category": "Flights",
+            "title": "🚢 Disembark Carnival Vista",
+            "desc": "Sisters arrive at Port Canaveral. Drive to Orlando."
+          },
+          {
+            "id": 10,
+            "date": "2026-05-10",
+            "endDate": "2026-05-14",
+            "category": "Hotels",
+            "title": "🦒 Check-in: Animal Kingdom Lodge",
+            "desc": "Disney Resort stay (May 10 - 14).",
+            "route": "https://www.google.com/maps/search/?api=1&query=Disney+Animal+Kingdom+Lodge+Orlando"
+          },
+          {
+            "id": 11,
+            "date": "2026-05-10",
+            "category": "Reservations",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🏰 Magic Kingdom",
+            "desc": "Must Do Attractions:\n• TRON Lightcycle / Run\n• Tiana's Bayou Adventure\n• Haunted Mansion\n• Seven Dwarfs Mine Train"
+          },
+          {
+            "id": 12,
+            "date": "2026-05-11",
+            "category": "Reservations",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🎬 Hollywood Studios",
+            "desc": "Must Do Attractions:\n• Star Wars: Rise of the Resistance\n• Twilight Zone Tower of Terror\n• Slinky Dog Dash"
+          },
+          {
+            "id": 1008,
+            "date": "2026-05-12",
+            "time": "10:00",
+            "tz": "-06:00",
+            "category": "Reminders",
+            "title": "⏰ BOOK: Hammam Turkish Bath",
+            "desc": "Book your Turkish Bath experience about a month in advance."
+          },
+          {
+            "id": 13,
+            "date": "2026-05-12",
+            "category": "Reservations",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🌳 Animal Kingdom",
+            "desc": "Must Do Attractions:\n• Avatar Flight of Passage\n• Expedition Everest\n• Kilimanjaro Safaris"
+          },
+          {
+            "id": 14,
+            "date": "2026-05-13",
+            "category": "Reservations",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🌐 Epcot",
+            "desc": "Must Do Attractions:\n• Guardians of the Galaxy: Cosmic Rewind\n• Remy's Ratatouille Adventure\n• Soarin'"
+          },
+          {
+            "id": 15,
+            "date": "2026-05-14",
+            "endDate": "2026-05-16",
+            "category": "Hotels",
+            "title": "✨ Check-in: Stella Nova Resort",
+            "desc": "Universal Resort stay (May 14 - 16).",
+            "route": "https://www.google.com/maps/search/?api=1&query=Universal+Stella+Nova+Resort+Orlando"
+          },
+          {
+            "id": 16,
+            "date": "2026-05-14",
+            "category": "Reservations",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🌌 Epic Universe (Day 1)",
+            "desc": "Express Pass Included!"
+          },
+          {
+            "id": 1001,
+            "date": "2026-05-15",
+            "time": "00:00",
+            "tz": "+09:00",
+            "category": "Reminders",
+            "title": "⏰ BOOK: Bar Centifolia",
+            "desc": "Opens 14 days in advance at exactly Midnight JST. Slots go in seconds, be ready on TableCheck!"
+          },
+          {
+            "id": 17,
+            "date": "2026-05-15",
+            "category": "Reservations",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🌌 Epic Universe (Day 2)",
+            "desc": "Express Pass Included!"
+          },
+          {
+            "id": 18,
+            "date": "2026-05-16",
+            "endDate": "2026-05-19",
+            "category": "Hotels",
+            "title": "🌴 Check-in: Loews Royal Pacific",
+            "desc": "Universal Resort stay (May 16 - 19) with UNLIMITED Express Pass.",
+            "route": "https://www.google.com/maps/search/?api=1&query=Loews+Royal+Pacific+Resort+Orlando"
+          },
+          {
+            "id": 19,
+            "date": "2026-05-16",
+            "category": "Reservations",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🦖 Universal Islands of Adventure",
+            "desc": "Unlimited Express Pass Active!"
+          },
+          {
+            "id": 20,
+            "date": "2026-05-17",
+            "category": "Reservations",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🎥 Universal Studios Florida",
+            "desc": "Unlimited Express Pass Active!"
+          },
+          {
+            "id": 21,
+            "date": "2026-05-18",
+            "category": "Reservations",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🎢 USF & IOA (Park Hop)",
+            "desc": "Clean up day!"
+          },
+          {
+            "id": 22,
+            "date": "2026-05-19",
+            "time": "18:00",
+            "endTime": "",
+            "tz": "-04:00",
+            "category": "Flights",
+            "title": "🚕 Transfer to MCO Airport",
+            "desc": "Heading out for evening flights to Latin America."
+          },
+          {
+            "id": 23,
+            "date": "2026-05-19",
+            "time": "20:50",
+            "endTime": "",
+            "tz": "-04:00",
+            "category": "Flights",
+            "title": "✈️ Flight AM447: MCO ➔ MEX",
+            "desc": "Airline: Aeromexico\nGeovanni's flight home to Mexico City."
+          },
+          {
+            "id": 24,
+            "date": "2026-05-19",
+            "category": "Flights",
+            "time": "22:15",
+            "endTime": "",
+            "tz": "-04:00",
+            "title": "✈️ Flight LA 8127: MCO ➔ GRU",
+            "desc": "Igor's flight to São Paulo.\nAirline: LATAM\n"
+          },
+          {
+            "id": 25,
+            "date": "2026-05-20",
+            "category": "Activities",
+            "title": "👨‍👩‍👦 Family Day (Split Party)",
+            "desc": "P1 (Geovanni) spends the day with sisters and dad in Mexico.\nP2 (Igor) spends the day with Luh in Brazil."
+          },
+          {
+            "id": 1772596877867,
+            "date": "2026-05-21",
+            "category": "Flights",
+            "time": "08:10",
+            "endTime": "",
+            "tz": "-03:00",
+            "title": "✈️ Flight AD2924: VCP ➔ SDU",
+            "desc": "Airline: Azul\nIgor´s flight from Viracopos to Rio de Janeiro"
+          },
+          {
+            "id": 27,
+            "date": "2026-05-21",
+            "time": "10:00",
+            "tz": "-03:00",
+            "category": "Reminders",
+            "title": "💊 P2: Pick Up Medication",
+            "desc": "CRITICAL ITEM: Igor needs to pick up his medication in Rio."
+          },
+          {
+            "id": 28,
+            "date": "2026-05-21",
+            "category": "Activities",
+            "title": "🎮 P1: Rest Day",
+            "desc": "Geovanni has a free day to relax in Mexico."
+          },
+          {
+            "id": 26,
+            "date": "2026-05-21",
+            "endDate": "2026-05-22",
+            "category": "Hotels",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🏖️ Check-in: Windsor Oceanico Hotel",
+            "desc": "Igor stays in Rio de Janeiro.\nMay 21 - May 22\n",
+            "route": "https://www.google.com/maps/search/?api=1&query=Windsor+Oceanico+Hotel+Rio+de+Janeiro"
+          },
+          {
+            "id": 29,
+            "date": "2026-05-22",
+            "category": "Flights",
+            "time": "05:00",
+            "endTime": "",
+            "tz": "-03:00",
+            "title": "✈️ Flight LA3339: GIG ➔ GRU (Igor)",
+            "desc": "Igor flight to Mexico City. \nConnection in GRU airport in São Paulo"
+          },
+          {
+            "id": 1772597236352,
+            "date": "2026-05-22",
+            "category": "Flights",
+            "time": "09:00",
+            "endTime": "",
+            "tz": "-03:00",
+            "title": "✈️ Flight LA8112: GRU ➔ MEX (Igor)",
+            "desc": "Igor flight from GRU to MEX\nIgor arrives at Mexico at 3:35 PM (Mexico Time)\nGeovanni picks him up at the airport. The party reunites!"
+          },
+          {
+            "id": 30,
+            "date": "2026-05-23",
+            "time": "10:00",
+            "endTime": "",
+            "tz": "-06:00",
+            "category": "Flights",
+            "title": "✈️ Flight AA502: MEX ➔ PHX",
+            "desc": "Airline: American Airlines\nDeparture: Mexico City (MEX)\nArrival: Phoenix (PHX)\n\nBeginning the long journey to Tokyo!"
+          },
+          {
+            "id": 31,
+            "date": "2026-05-24",
+            "time": "08:00",
+            "endTime": "",
+            "tz": "-07:00",
+            "category": "Flights",
+            "title": "✈️ Flight AA3204: PHX ➔ LAX",
+            "desc": "Airline: American Airlines\nDeparture: Phoenix (PHX)\nArrival: Los Angeles (LAX)"
+          },
+          {
+            "id": 32,
+            "date": "2026-05-24",
+            "time": "13:00",
+            "endTime": "",
+            "tz": "-07:00",
+            "category": "Flights",
+            "title": "✈️ Flight JL7015: LAX ➔ TYO",
+            "desc": "Airline: Japan Airlines\nDeparture: Los Angeles (LAX)\nArrival: Tokyo (Haneda/Narita)\n\nCrossing the Pacific!"
+          },
+          {
+            "id": 1,
+            "date": "2026-05-25",
+            "time": "",
+            "endTime": "",
+            "category": "Flights",
+            "title": "🚌 Shuttle to Hotel Miracosta",
+            "desc": "Direct transit to Disney property."
+          },
+          {
+            "id": 3,
+            "date": "2026-05-25",
+            "category": "Reservations",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🌊 Day 01: Tokyo DisneySea",
+            "desc": "Must Do: Fantasy Springs, Journey to the Center of the Earth, Tower of Terror, Soaring: Fantastic Flight."
+          },
+          {
+            "id": 2,
+            "date": "2026-05-25",
+            "endDate": "2026-05-26",
+            "category": "Hotels",
+            "title": "🌋 Check-in: Hotel Miracosta",
+            "desc": "Tokyo Disney resort stay.",
+            "route": "https://www.google.com/maps/search/?api=1&query=Tokyo+DisneySea+Hotel+MiraCosta"
+          },
+          {
+            "id": 34,
+            "date": "2026-05-26",
+            "category": "Reservations",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🎢 Day 02: Tokyo Disneyland",
+            "desc": "✨ VACATION PACKAGE PERKS ACTIVE ✨\n• Unlimited Attraction Tickets (Skip the lines!)\n• Reserved Show / Parade Viewing\n• Free Drinks Ticket (Unlimited soft drinks!)\n• Exclusive Original Merchandise & Popcorn Bucket\n• Happy Entry (Early Park Admission)"
+          },
+          {
+            "id": 33,
+            "date": "2026-05-26",
+            "endDate": "2026-05-27",
+            "category": "Hotels",
+            "title": "🏰 Check-in: Fantasy Springs Hotel",
+            "desc": "Transferring from Miracosta. The ultimate Disney bubble experience!",
+            "route": "https://www.google.com/maps/search/?api=1&query=Tokyo+Disney+Resort+Fantasy+Springs+Hotel"
+          },
+          {
+            "id": 36,
+            "date": "2026-05-27",
+            "category": "Reservations",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🌊 Day 03: Tokyo DisneySea",
+            "desc": "✨ VACATION PACKAGE PERKS ACTIVE ✨\n• Unlimited Attraction Tickets\n• Reserved Show Viewing\n• Free Drinks Ticket\n• Fantasy Springs Magic Passport (Full access to the new area!)"
+          },
+          {
+            "id": 35,
+            "date": "2026-05-27",
+            "endDate": "2026-05-28",
+            "category": "Hotels",
+            "title": "🧸 Check-in: Toy Story Hotel",
+            "desc": "Checking out of Fantasy Springs. Using the Disney luggage transfer device for the suitcases.",
+            "route": "https://www.google.com/maps/search/?api=1&query=Tokyo+Disney+Resort+Toy+Story+Hotel"
+          },
+          {
+            "id": 1772580955959,
+            "date": "2026-05-28",
+            "category": "Reservations",
+            "time": "",
+            "tz": "-06:00",
+            "title": "Kimono Tea Ceremony and Samurai Sword Experience",
+            "desc": "Samurai Museum Asakusa @3:00 pm for the Samurai Sword Experience\nMAIKOYA Asakusa @5:00 pm for the Kimono Tea Ceremony"
+          },
+          {
+            "id": 1772581494937,
+            "date": "2026-05-28",
+            "category": "Activities",
+            "time": "",
+            "tz": "-06:00",
+            "title": "⛩️ Day 04: Asakusa District",
+            "desc": "09:00 AM - Kaminarimon Gate & Nakamise-dori (arrive before crowds)\n10:00 AM - Senso-ji Temple\n12:30 PM - Lunch in Asakusa\n02:00 PM - Transit to Akihabara\n02:30 PM - Akihabara (Arcades, Anime shops)\n06:30 PM - Dinner in Akihabara",
+            "route": "https://www.google.com/maps/dir/Kaminarimon/Nakamise-dori/Senso-ji/Akihabara"
+          },
+          {
+            "id": 1772581109297,
+            "date": "2026-05-28",
+            "endDate": "2026-06-04",
+            "category": "Hotels",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🏨 Check-in: Asakusa Tobu Hotel",
+            "desc": "TOKYO: Asakusa Tobu Hotel (May 28 - June 04).\n",
+            "route": "https://www.google.com/maps/search/?api=1&query=Asakusa+Tobu+Hotel+Tokyo"
+          },
+          {
+            "id": 1011,
+            "date": "2026-05-29",
+            "time": "11:00",
+            "tz": "+09:00",
+            "category": "Reservations",
+            "title": "💆‍♂️ Mominoki House (Ueno)",
+            "desc": "Footbath cafe and massage reservation!\nTime: 11:00 AM\nLocation: 4-5-2 Ueno, Taito City, Tokyo"
+          },
+          {
+            "id": 1772581641008,
+            "date": "2026-05-29",
+            "category": "Activities",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🗼Day 05: Tokyo Tower and Cocktails",
+            "desc": "09:00 AM – Ueno Park\n11:00 AM – Mominoki House (See Reservations)\n12:30 PM – Lunch\n01:30 PM – Imperial Palace & Nijubashi Bridge\n03:30 PM – Tokyo Character Street\n05:30 PM – Tokyo Tower\n08:00 PM – Bar Centifolia",
+            "route": "https://www.google.com/maps/dir/Ueno+Park/Imperial+Palace/Tokyo+Character+Street/Tokyo+Tower/Bar+Centifolia"
+          },
+          {
+            "id": 1010,
+            "date": "2026-05-30",
+            "time": "19:00",
+            "tz": "+09:00",
+            "category": "Dining",
+            "title": "🍲 Kumachan Onsen",
+            "desc": "Teddy Bear Hot Pot dinner reservation!\nTime: 7:00 PM\nLocation: 1-8-10 Shibuya, Shibuya-ku, Tokyo"
+          },
+          {
+            "id": 1772581887825,
+            "date": "2026-05-30",
+            "category": "Activities",
+            "time": "",
+            "tz": "-06:00",
+            "title": "👾 Day 06: Pop Culture",
+            "desc": "09:00 AM – Meiji Shrine\n10:30 AM – Takeshita Street\n12:30 PM – Lunch & Transit\n01:30 PM – Nintendo Tokyo & Pokémon Center\n03:30 PM – Mega Don Quijote\n05:00 PM – Hachiko Statue & Shibuya Crossing\n05:30 PM – Starbucks Shibuya\n07:00 PM – Kumachan Onsen (See Dining)\n08:30 PM – Squid Game Experience Shibuya (Needs RSVP)\n10:30 PM – Shinjuku Nightlife",
+            "route": "https://www.google.com/maps/dir/Meiji+Jingu/Takeshita+Street/Nintendo+Tokyo/Mega+Don+Quijote+Shibuya/Shibuya+Crossing"
+          },
+          {
+            "id": 1772582535750,
+            "date": "2026-05-31",
+            "category": "Activities",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🧖🏼‍♀️ Day 07: Onsen Day",
+            "desc": "10:00 AM - Sumida River Walk\n11:30 AM - Tokyo Skytree & Pokémon Center Skytree Town\n01:30 PM - Lunch at Solamachi\n03:30 PM - Relax at Yudonburi Sakaeyu (Tattoo friendly onsen)\n06:30 PM - Dinner nearby",
+            "route": "https://www.google.com/maps/dir/Sumida+Park/Tokyo+Skytree/Yudonburi+Sakaeyu"
+          },
+          {
+            "id": 1772582904393,
+            "date": "2026-06-01",
+            "category": "Reservations",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🪷 Day 08: Kamakura and Enoshima Daytrip",
+            "desc": "Meeting Point @08:20 am in Shinjuku Post Office\n\nKomachi Street\nHase Temple\nKamakura Great Buddha\nEnoshima "
+          },
+          {
+            "id": 1772583200126,
+            "date": "2026-06-02",
+            "category": "Reservations",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🏞️ Day 9: Nikko Day Trip",
+            "desc": "Meeting Point @08:00 am in JR Tokyo Station Marunouchi North Exit\n\nToshogu Shrine\nIrohazaka Winding Road\nChuzenji Lake\nKegon Falls\n\n🧳 LEAVE BAGS READY FOR DROP OFF AND SHIP IN LOBBY FOR ONE DAY DELIVERY"
+          },
+          {
+            "id": 1772583358342,
+            "date": "2026-06-03",
+            "category": "Activities",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🦖 Day 10: Shinjuku",
+            "desc": "08:30 AM - Ship luggage to Kyoto from hotel\n10:00 AM - Shinjuku Gyoen National Garden\n12:30 PM - Lunch around Shinjuku Station\n02:00 PM - 3D Cat Billboard (Cross Shinjuku Vision)\n03:00 PM - Godzilla Head (Hotel Gracery)\n05:00 PM - Explore Kabukicho\n07:00 PM - Bar hopping in Golden Gai",
+            "route": "https://www.google.com/maps/dir/Shinjuku+Gyoen/Cross+Shinjuku+Vision/Godzilla+Head/Shinjuku+Golden+Gai"
+          },
+          {
+            "id": 1772597952766,
+            "date": "2026-06-04",
+            "category": "Flights",
+            "time": "09:00",
+            "endTime": "",
+            "tz": "+09:00",
+            "title": "🚆 Shinkansen: Tokyo to Kyoto",
+            "desc": "Bullet train from Tokyo to Kyoto"
+          },
+          {
+            "id": 1772583643816,
+            "date": "2026-06-04",
+            "endDate": "2026-06-07",
+            "category": "Hotels",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🌺 Check-in: Mitsui Garden Hotel Sanjo Premier",
+            "desc": "Kyoto stay (June 04 - 07)\nOnsen included",
+            "route": "https://www.google.com/maps/search/?api=1&query=Mitsui+Garden+Hotel+Kyoto+Sanjo+Premier"
+          },
+          {
+            "id": 1772598169891,
+            "date": "2026-06-04",
+            "category": "Activities",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🎏 Day 11: Arrival to Kyoto",
+            "desc": "12:00 PM - Arrive in Kyoto, drop bags at Mitsui Garden\n01:00 PM - Nishiki Market (Street food lunch)\n03:00 PM - Nintendo Kyoto (Rooftop Mario Statue)\n04:30 PM - Pokémon Center Kyoto\n06:30 PM - Evening stroll & Dinner at Pontocho Alley",
+            "route": "https://www.google.com/maps/dir/Nishiki+Market/Nintendo+Kyoto/Pokemon+Center+Kyoto/Pontocho+Alley"
+          },
+          {
+            "id": 1772598355853,
+            "date": "2026-06-05",
+            "category": "Reservations",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🎋 Day 12: Arashiyama Train and River Boat Ride",
+            "desc": "Meeting Point @09:30 am in Kyoto Station Exit Tourist Bus Parking Area\n\nSagano Scenic Railway\nHozugawa River Boat Ride\nArashiyama (Bamboo Grove & Tenryu-ji Temple)"
+          },
+          {
+            "id": 1772598662592,
+            "date": "2026-06-06",
+            "category": "Activities",
+            "time": "",
+            "tz": "-06:00",
+            "title": "⛩️ Day 13: Spiritual Kyoto",
+            "desc": "07:00 AM - Fushimi Inari Shrine (Beat the crowds!)\n10:30 AM - Kiyomizu-dera Temple\n12:30 PM - Sannenzaka & Ninenzaka (Lunch)\n02:00 PM - Tatami Starbucks (Kyoto Ninenzaka Yasaka Chaya)\n03:30 PM - Gion District\n05:30 PM - Umekoji Park (Find the 5 Johto Poke Lids!)",
+            "route": "https://www.google.com/maps/dir/Fushimi+Inari/Kiyomizu-dera/Starbucks+Coffee+-+Kyoto+Ninenzaka+Yasaka+Chaya/Gion/Umekoji+Park"
+          },
+          {
+            "id": 1006,
+            "date": "2026-06-07",
+            "time": "09:00",
+            "tz": "+09:00",
+            "category": "Reminders",
+            "title": "🎫 RESERVE: Tombori River Cruise",
+            "desc": "Go to the Dotonbori ticket booth first thing this morning to exchange your Osaka Pass for an evening cruise time slot! They sell out by the afternoon."
+          },
+          {
+            "id": 1772599078916,
+            "date": "2026-06-07",
+            "category": "Activities",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🦦 Day 14: Osaka & Otters",
+            "desc": "10:00 AM - Dotonbori Ticket Booth (Exchange Osaka Pass for Cruise time slot)\n10:30 AM - Rikuro Ojisan (Fresh Jiggly Cheesecake)\n11:30 AM - Namba Yasaka Shrine (Giant Lion Head)\n01:00 PM - Lunch around Namba\n02:30 PM - Hozen-ji Temple & Hozenji Yokocho\n04:00 PM - Loutre Otter Cafe (Requires booking!)\n06:00 PM - Explore Dotonbori & Glico Man photo\n08:00 PM - Tombori River Cruise",
+            "route": "https://www.google.com/maps/dir/Dotonbori/Rikuro-ojisan/Namba+Yasaka+Shrine/Hozen-ji/Loutre+Osaka/Glico+Sign"
+          },
+          {
+            "id": 1772598859362,
+            "date": "2026-06-07",
+            "endDate": "2026-06-11",
+            "category": "Hotels",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🇯🇵 Check-in: Citadines Namba Osaka",
+            "desc": "Osaka stay (June 07 - 11)",
+            "route": "https://www.google.com/maps/search/?api=1&query=Citadines+Namba+Osaka"
+          },
+          {
+            "id": 1772599289823,
+            "date": "2026-06-08",
+            "category": "Activities",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🏯 Day 15: Osaka Pass",
+            "desc": "09:00 AM – Osaka Castle (Optional: Gozabune Boat)\n11:00 AM – Tsutenkaku Tower (Tower Slider - Exchange pass at 1st floor Ticket Center)\n01:30 PM – Transit to Umeda\n02:15 PM – Umeda Sky Building (Must enter before 3:00 PM for free entry)\n04:00 PM – Pokémon Center Osaka\n06:00 PM – HEP FIVE Ferris Wheel",
+            "route": "https://www.google.com/maps/dir/Osaka+Castle/Tsutenkaku/Umeda+Sky+Building/Pokemon+Center+Osaka/HEP+FIVE"
+          },
+          {
+            "id": 1772599630084,
+            "date": "2026-06-09",
+            "category": "Activities",
+            "time": "",
+            "tz": "-06:00",
+            "title": "👹 Day 16: Darumas",
+            "desc": "09:00 AM - Transit (Midosuji Line to Minoh-Kayano, then Bus 29)\n10:00 AM - Katsuoji Temple (Winning Daruma Dolls)\n12:30 PM - Transit & Lunch\n02:00 PM - Minoh Falls (Nature walk)\n05:30 PM - Pokémon Cafe Osaka (Requires booking!)\n08:00 PM - Spa World / Spa Desse Osaka (Relaxing evening)",
+            "route": "https://www.google.com/maps/dir/Katsuoji/Minoh+Falls/Pokemon+Cafe+Osaka/Spa+World+Osaka"
+          },
+          {
+            "id": 1772599753058,
+            "date": "2026-06-10",
+            "category": "Activities",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🦌 Day 17: Nara Deers",
+            "desc": "09:00 AM - Kintetsu Line from Namba to Nara\n10:00 AM - Bus #2 to Kasuga Taisha Honden\n11:30 AM - Deer Forest Walk (Feeding the bowing deer)\n01:00 PM - Lunch in Nara Park area\n02:30 PM - Todai-ji Temple (Great Buddha)\n04:30 PM - Nakatanidou (Fast mochi pounding demonstration)\n06:00 PM - Return to Osaka",
+            "route": "https://www.google.com/maps/dir/Kintetsu-Nara+Station/Kasuga+Taisha/Todai-ji/Nakatanidou"
+          },
+          {
+            "id": 1772599932296,
+            "date": "2026-06-11",
+            "category": "Flights",
+            "time": "17:25",
+            "endTime": "",
+            "tz": "+09:00",
+            "title": "✈️ Flight SK621: KIX ➔ SIN",
+            "desc": "Airline: Singapore Airlines\nFlight from Osaka to Istanbul with connection in Singapore\n1st flight"
+          },
+          {
+            "id": 1772600022157,
+            "date": "2026-06-12",
+            "category": "Flights",
+            "time": "00:15",
+            "endTime": "",
+            "tz": "+09:00",
+            "title": "✈️ Flight SK392: SIN ➔ IST",
+            "desc": "Airline: Singapore Airlines\nFlight from Osaka to Istanbul with connection in Singapore\n2nd flight: Singapore to Istanbul"
+          },
+          {
+            "id": 1772600174189,
+            "date": "2026-06-12",
+            "category": "Activities",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🧖🏼‍♀️ Day 01: Turkish Bath",
+            "desc": "12:00 PM - Arrive and check-in at Airbnb Sisli\n02:00 PM - Late lunch\n03:30 PM - Galata Tower (Panoramic views)\n05:00 PM - Walk across Galata Bridge\n07:00 PM - Hammam Turkish Bath Experience",
+            "route": "https://www.google.com/maps/dir/Galata+Tower/Galata+Bridge"
+          },
+          {
+            "id": 6,
+            "date": "2026-06-12",
+            "endDate": "2026-06-21",
+            "category": "Hotels",
+            "time": "",
+            "tz": "-06:00",
+            "title": "☕ Check-in: Airbnb Sisli",
+            "desc": "Istanbul accommodation for 3 (Igor, Geovanni & Jacqueline)",
+            "route": "https://www.google.com/maps/search/?api=1&query=Sisli+Istanbul+Turkey"
+          },
+          {
+            "id": 1772600355625,
+            "date": "2026-06-13",
+            "category": "Reservations",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🛥️ Bosphorus Dinner Cruise",
+            "desc": "Airbnb Pickup at 19:00 pm\nBring Passport or ID Card\nStandard Menu with Unlimited Alcoholic Drinks & Hotel Transfer"
+          },
+          {
+            "id": 1772600251376,
+            "date": "2026-06-13",
+            "category": "Activities",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🛥️ Day 02: Bazaars & Bosphorus Cruise",
+            "desc": "09:30 AM - Topkapi Palace (Go early to avoid long lines)\n01:00 PM - Lunch nearby\n02:30 PM - Grand Bazaar (Shopping & exploring)\n04:30 PM - Spice Bazaar (Sweets and teas)\n07:00 PM - Airbnb pickup for Bosphorus Dinner Cruise",
+            "route": "https://www.google.com/maps/dir/Topkapi+Palace/Grand+Bazaar/Spice+Bazaar"
+          },
+          {
+            "id": 7,
+            "date": "2026-06-14",
+            "category": "Reservations",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🕌 Skip-the-Line Combo Package",
+            "desc": "Basilica Cistern + Hagia Sophia."
+          },
+          {
+            "id": 1772600570757,
+            "date": "2026-06-14",
+            "category": "Activities",
+            "time": "",
+            "tz": "-06:00",
+            "title": "🕌 Day 03: Sultanahment Square",
+            "desc": "09:00 AM - Basilica Cistern (First entry with Combo Package)\n10:30 AM - Hagia Sophia (Using Combo Package)\n12:30 PM - Lunch at Sultanahmet Square\n02:00 PM - Blue Mosque\n04:00 PM - Ferry to Kadikoy (Asian Side of Istanbul)\n05:00 PM - Explore Kadikoy & Evening Dinner",
+            "route": "https://www.google.com/maps/dir/Basilica+Cistern/Hagia+Sophia/Blue+Mosque/Kadikoy"
+          },
+          {
+            "id": 1772600606752,
+            "date": "2026-06-15",
+            "category": "Reservations",
+            "time": "",
+            "tz": "-06:00",
+            "title": "💉 Day 04: Surgeries",
+            "desc": "Isveck Klinik surgeries day"
+          },
+          {
+            "id": 1772600606999,
+            "date": "2026-06-21",
+            "category": "Flights",
+            "time": "",
+            "endTime": "",
+            "tz": "+03:00",
+            "title": "✈️ Flights Home (Pending)",
+            "desc": "Flights from Istanbul to Mexico City (and Brazil) yet to be booked. Update this entry once confirmed!"
+          }
+        ];
+
+        // --- NEW: Local Storage Auto-Save Logic ---
+        
+        // 1. Check if the iPhone has saved data from a previous session
+        const localData = localStorage.getItem('vacations_2026_data');
+        if (localData) {
+            try {
+                itinerary = JSON.parse(localData); // Override hardcoded data with local data
+            } catch (e) {
+                console.error("Error parsing local data", e);
+            }
+        }
+
+        // 2. Function to trigger saving to the iPhone's storage
+        function saveLocal() {
+            try {
+                localStorage.setItem('vacations_2026_data', JSON.stringify(itinerary));
+            } catch (e) {
+                alert("Storage limit reached! Please export an offline backup, remove some photos, and upload to GitHub to free up space.");
+            }
+        }
+
+        // 3. Function to force sync from GitHub
+        function clearLocalData() {
+            if(confirm("This will erase your local unsaved changes and sync with the GitHub version. Proceed?")) {
+                localStorage.removeItem('vacations_2026_data');
+                location.reload(); // Restarts the app to pull fresh data
+            }
+        }
+    </script>
+
+    <script>
+        let activeCategoryFilter = 'All';
+        let currentDetailEventId = null;
+
+        // Photo Upload and Compression Logic
+        document.getElementById('eventImageFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 800;
+                    let scaleSize = MAX_WIDTH / img.width;
+                    if (scaleSize > 1) scaleSize = 1; 
+                    
+                    canvas.width = img.width * scaleSize;
+                    canvas.height = img.height * scaleSize;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.6); 
+                    document.getElementById('eventImageBase64').value = dataUrl;
+                    
+                    const preview = document.getElementById('imagePreview');
+                    preview.style.backgroundImage = `url(${dataUrl})`;
+                    preview.style.display = 'block';
+                    document.getElementById('removePhotoBtn').style.display = 'block';
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(file);
+        });
+
+        function removePhoto() {
+            document.getElementById('eventImageFile').value = '';
+            document.getElementById('eventImageBase64').value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('imagePreview').style.backgroundImage = 'none';
+            document.getElementById('removePhotoBtn').style.display = 'none';
+        }
+
+        // Image assignment logic (Prioritizes your locally embedded photo)
+        function getContextualImage(event) {
+            if (event.customImageBase64 && event.customImageBase64.trim() !== "") {
+                return event.customImageBase64;
+            }
+
+            const t = event.title.toLowerCase();
+            const d = (event.desc || "").toLowerCase();
+            
+            if (t.includes('tokyo') || t.includes('shinjuku') || t.includes('asakusa') || d.includes('tokyo')) return 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=800&auto=format&fit=crop';
+            if (t.includes('osaka') || t.includes('dotonbori') || t.includes('tsutenkaku') || d.includes('osaka')) return 'https://images.unsplash.com/photo-1590559899731-a382839ceacd?q=80&w=800&auto=format&fit=crop';
+            if (t.includes('kyoto') || t.includes('fushimi') || t.includes('arashiyama') || d.includes('kyoto')) return 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=800&auto=format&fit=crop';
+            if (t.includes('istanbul') || t.includes('bosphorus') || t.includes('mosque') || t.includes('bazaar')) return 'https://images.unsplash.com/photo-1522206661139-49931eb6f658?q=80&w=800&auto=format&fit=crop';
+            if (t.includes('disney') || t.includes('magic kingdom') || t.includes('epcot')) return 'https://images.unsplash.com/photo-1516997121675-4c2d1684aa3e?q=80&w=800&auto=format&fit=crop';
+            if (t.includes('universal') || t.includes('epic universe') || t.includes('island')) return 'https://images.unsplash.com/photo-1604028297053-066ab64a13e5?q=80&w=800&auto=format&fit=crop';
+            if (t.includes('mexico')) return 'https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?q=80&w=800&auto=format&fit=crop';
+            
+            if (event.category === 'Flights') return 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=800&auto=format&fit=crop';
+            if (event.category === 'Hotels') return 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=800&auto=format&fit=crop';
+            if (event.category === 'Dining') return 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=800&auto=format&fit=crop';
+            if (event.category === 'Activities') return 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=800&auto=format&fit=crop';
+            
+            return 'https://images.unsplash.com/photo-1499083097717-a156f85f0516?q=80&w=800&auto=format&fit=crop';
+        }
+
+        const categoryIcons = {
+            'Hotels': '🏨', 'Flights': '✈️', 'Reservations': '🎟️', 
+            'Activities': '📸', 'Dining': '🍽️', 'Reminders': '⏰'
+        };
+
+        function formatDateDisplay(dateStr) {
+            const options = { weekday: 'short', month: 'short', day: 'numeric' };
+            const d = new Date(dateStr + 'T12:00:00'); 
+            return d.toLocaleDateString('en-US', options);
+        }
+
+        function setCategoryFilter(cat, element) {
+            activeCategoryFilter = cat;
+            document.querySelectorAll('.filter-pill').forEach(pill => pill.classList.remove('active'));
+            element.classList.add('active');
+            renderItinerary();
+        }
+
+        function renderItinerary() {
+            const list = document.getElementById('itineraryList');
+            list.innerHTML = '';
+
+            const filtered = itinerary.filter(event => activeCategoryFilter === 'All' || event.category === activeCategoryFilter);
+            filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            const grouped = {};
+            filtered.forEach(event => {
+                if(!grouped[event.date]) grouped[event.date] = [];
+                grouped[event.date].push(event);
+            });
+
+            if (Object.keys(grouped).length === 0) {
+                list.innerHTML = '<p style="text-align:center; color: var(--secondary-text); margin-top: 40px;">No events found.</p>';
+                return;
+            }
+
+            for (const [date, events] of Object.entries(grouped)) {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'date-group';
+                
+                groupDiv.innerHTML = `<div class="date-header">${formatDateDisplay(date)}</div>`;
+                
+                const iosList = document.createElement('div');
+                iosList.className = 'ios-list';
+
+                events.forEach(event => {
+                    let timeSub = "All Day";
+                    if (event.time) timeSub = event.time;
+                    if (event.category === 'Hotels' && event.endDate) timeSub = `Checkout: ${event.endDate}`;
+                    if (event.category === 'Flights' && event.endTime) timeSub = `${event.time} ➔ ${event.endTime}`;
+                    
+                    const cleanTitle = event.title.replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '').trim();
+
+                    const item = document.createElement('div');
+                    item.className = 'list-item';
+                    item.setAttribute('data-cat', event.category); 
+                    item.onclick = () => openDetailModal(event.id);
+                    item.innerHTML = `
+                        <div class="item-icon">${categoryIcons[event.category]}</div>
+                        <div class="item-content">
+                            <div class="item-title">${cleanTitle}</div>
+                            <div class="item-subtitle">${timeSub}</div>
+                        </div>
+                        <div class="item-chevron">›</div>
+                    `;
+                    iosList.appendChild(item);
+                });
+
+                groupDiv.appendChild(iosList);
+                list.appendChild(groupDiv);
+            }
+        }
+
+        // Modals Management
+        function closeAllModals() {
+            document.querySelectorAll('.bottom-sheet').forEach(sheet => sheet.classList.remove('active'));
+            document.getElementById('modalOverlay').classList.remove('active');
+            document.body.style.overflow = 'auto'; 
+        }
+
+        function openModal(modalId) {
+            closeAllModals();
+            document.getElementById('modalOverlay').classList.add('active');
+            document.getElementById(modalId).classList.add('active');
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        function openAddModal() {
+            document.getElementById('eventForm').reset();
+            document.getElementById('editId').value = '';
+            document.getElementById('formTitle').innerText = 'New Event';
+            removePhoto(); 
+            toggleTimeFields();
+            openModal('addEditModal');
+        }
+
+        function openSettingsModal() { openModal('settingsModal'); }
+
+        function openDetailModal(id) {
+            const event = itinerary.find(e => e.id === id);
+            currentDetailEventId = id;
+
+            const cleanTitle = event.title.replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '').trim();
+            
+            document.getElementById('detailImage').style.backgroundImage = `url('${getContextualImage(event)}')`;
+            document.getElementById('detailCategory').innerText = `${categoryIcons[event.category]} ${event.category}`;
+            document.getElementById('detailTitle').innerText = cleanTitle;
+            
+            let timeStr = formatDateDisplay(event.date);
+            if (event.time) timeStr += ` • ${event.time}`;
+            if (event.tz) timeStr += ` (${event.tz})`;
+            document.getElementById('detailTime').innerText = `🕒 ${timeStr}`;
+
+            document.getElementById('detailDesc').innerText = event.desc || "No additional details provided.";
+            
+            const routeBtn = document.getElementById('detailRouteBtn');
+            if (event.route) {
+                routeBtn.style.display = 'block';
+                routeBtn.href = event.route;
+            } else {
+                routeBtn.style.display = 'none';
+            }
+
+            document.getElementById('detailEditBtn').onclick = () => editEvent(id);
+            document.getElementById('detailDeleteBtn').onclick = () => deleteEvent(id);
+
+            openModal('detailModal');
+        }
+
+        // Form Logic
+        function toggleTimeFields() {
+            const cat = document.getElementById('eventCategory').value;
+            document.getElementById('timeGroup').style.display = 'none';
+            document.getElementById('endTimeGroup').style.display = 'none';
+            document.getElementById('endDateGroup').style.display = 'none';
+            document.getElementById('tzGroup').style.display = 'none';
+
+            if (cat === 'Reminders' || cat === 'Dining' || cat === 'Activities') {
+                document.getElementById('timeGroup').style.display = 'block';
+                document.getElementById('tzGroup').style.display = 'block';
+                document.getElementById('timeLabel').innerText = "Local Time";
+            } else if (cat === 'Flights') {
+                document.getElementById('timeGroup').style.display = 'block';
+                document.getElementById('endTimeGroup').style.display = 'block';
+                document.getElementById('tzGroup').style.display = 'block';
+                document.getElementById('timeLabel').innerText = "Departure Time";
+            } else if (cat === 'Hotels') {
+                document.getElementById('endDateGroup').style.display = 'block';
+            }
+        }
+
+        function submitForm() {
+            const editId = document.getElementById('editId').value;
+            const event = {
+                id: editId ? parseInt(editId) : Date.now(),
+                date: document.getElementById('eventDate').value,
+                category: document.getElementById('eventCategory').value,
+                time: document.getElementById('eventTime').value,
+                endTime: document.getElementById('eventEndTime').value,
+                endDate: document.getElementById('eventEndDate').value,
+                tz: document.getElementById('eventTZ').value,
+                title: document.getElementById('eventTitle').value,
+                desc: document.getElementById('eventDesc').value,
+                route: document.getElementById('eventRoute').value || undefined,
+                customImageBase64: document.getElementById('eventImageBase64').value || undefined
+            };
+
+            if (!event.date || !event.title) {
+                alert("Date and Title are required."); return;
+            }
+
+            if (editId) {
+                const index = itinerary.findIndex(item => item.id === parseInt(editId));
+                itinerary[index] = event;
+            } else {
+                itinerary.push(event);
+            }
+            
+            saveLocal(); // <-- TRIGGERS AUTO-SAVE
+            renderItinerary();
+            closeAllModals();
+        }
+
+        function editEvent(id) {
+            const event = itinerary.find(item => item.id === id);
+            document.getElementById('editId').value = event.id;
+            document.getElementById('eventDate').value = event.date;
+            document.getElementById('eventCategory').value = event.category;
+            
+            toggleTimeFields();
+            
+            document.getElementById('eventTime').value = event.time || '';
+            document.getElementById('eventEndTime').value = event.endTime || '';
+            document.getElementById('eventEndDate').value = event.endDate || '';
+            
+            if(event.tz) document.getElementById('eventTZ').value = event.tz;
+            document.getElementById('eventRoute').value = event.route || '';
+            document.getElementById('eventTitle').value = event.title;
+            document.getElementById('eventDesc').value = event.desc;
+            
+            if (event.customImageBase64) {
+                document.getElementById('eventImageBase64').value = event.customImageBase64;
+                const preview = document.getElementById('imagePreview');
+                preview.style.backgroundImage = `url(${event.customImageBase64})`;
+                preview.style.display = 'block';
+                document.getElementById('removePhotoBtn').style.display = 'block';
+            } else {
+                removePhoto();
+            }
+            
+            document.getElementById('formTitle').innerText = 'Edit Event';
+            openModal('addEditModal');
+        }
+
+        function deleteEvent(id) {
+            if(confirm("Are you sure you want to delete this event from your itinerary?")) {
+                itinerary = itinerary.filter(event => event.id !== id);
+                
+                saveLocal(); // <-- TRIGGERS AUTO-SAVE
+                renderItinerary();
+                closeAllModals();
+            }
+        }
+
+        // Export Logic
+        function formatICSDate(dateStr, timeStr, tzOffset, isAllDay) {
+            if (isAllDay || !timeStr) {
+                const d = new Date(dateStr);
+                return `${d.getUTCFullYear()}${String(d.getUTCMonth()+1).padStart(2,'0')}${String(d.getUTCDate()).padStart(2,'0')}`;
+            }
+            const combinedStr = `${dateStr}T${timeStr}:00${tzOffset}`;
+            const d = new Date(combinedStr);
+            return `${d.getUTCFullYear()}${String(d.getUTCMonth() + 1).padStart(2, '0')}${String(d.getUTCDate()).padStart(2, '0')}T${String(d.getUTCHours()).padStart(2, '0')}${String(d.getUTCMinutes()).padStart(2, '0')}00Z`;
+        }
+
+        function buildICSContent(events) {
+            let icsContent = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Vacations 2026//EN\r\n";
+            events.forEach(event => {
+                const isAllDay = (event.category === 'Activities' || event.category === 'Hotels' || (!event.time && event.category !== 'Hotels'));
+                const dtStart = formatICSDate(event.date, event.time, event.tz, isAllDay);
+                
+                icsContent += "BEGIN:VEVENT\r\nUID:"+event.id+"@vacations2026.local\r\n";
+                if (isAllDay) {
+                    icsContent += `DTSTART;VALUE=DATE:${dtStart}\r\n`;
+                    if (event.category === 'Hotels' && event.endDate) {
+                        icsContent += `DTEND;VALUE=DATE:${formatICSDate(event.endDate, null, null, true)}\r\n`;
+                    }
+                } else {
+                    icsContent += `DTSTART:${dtStart}\r\n`;
+                    const durationMs = event.category === 'Flights' ? (4 * 60 * 60 * 1000) : (60 * 60 * 1000); 
+                    const startObj = new Date(`${event.date}T${event.time || '10:00'}:00${event.tz || 'Z'}`);
+                    const endObj = new Date(startObj.getTime() + durationMs);
+                    icsContent += `DTEND:${formatICSDate(endObj.toISOString().split('T')[0], endObj.toISOString().split('T')[1].substring(0,5), 'Z', false)}\r\n`;
+                }
+                icsContent += `SUMMARY:${event.title}\r\n`;
+                let safeDesc = (event.desc || '').replace(/\n/g, '\\n');
+                if (event.route) safeDesc += `\\n\\nMap Route: ${event.route}`;
+                icsContent += `DESCRIPTION:${safeDesc}\r\nEND:VEVENT\r\n`;
+            });
+            return icsContent + "END:VCALENDAR";
+        }
+
+        function triggerDownload(content, filename) {
+            const blob = new Blob([content], { type: 'text/calendar;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = filename;
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        }
+
+        function downloadICS(category) { triggerDownload(buildICSContent(itinerary.filter(e => e.category === category)), `Vacation_${category}.ics`); }
+        function downloadAllICS() { triggerDownload(buildICSContent(itinerary), `Vacations_2026_FULL.ics`); }
+
+        function downloadAppHTML() {
+            const dataScript = document.getElementById('appData');
+            dataScript.textContent = `\n        let itinerary = ${JSON.stringify(itinerary, null, 12)};\n    `;
+            const htmlContent = "<!DOCTYPE html>\n<html lang=\"en\">\n" + document.documentElement.innerHTML + "\n</html>";
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+            const link = document.createElement('a'); link.href = window.URL.createObjectURL(blob);
+            link.download = `Vacations_2026_Backup_${new Date().toISOString().slice(0,10)}.html`;
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        }
+
+        // Initialization
+        renderItinerary();
+        
+        // Register Service Worker for Offline Mode
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('Service Worker Registered!'))
+                .catch(err => console.log('SW Registration Failed (normal if running locally without server)'));
+            });
+        }
+    </script>
+</body>
+</html>
